@@ -1,0 +1,79 @@
+name: "Terrarich Manual Release"
+
+# Публикация релиза форка Terrarich СТРОГО по ручной команде (workflow_dispatch).
+# Никаких автопусков по таймеру или пушу!
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Версия релиза (например: v0.1.0)"
+        required: true
+        default: "v0.1.0"
+      title:
+        description: "Заголовок релиза (если пусто, сгенерируется автоматически)"
+        required: false
+        default: ""
+      draft:
+        description: "Создать как черновик (Draft)"
+        type: boolean
+        default: false
+      prerelease:
+        description: "Пометить как предварительную версию (Pre-release)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: "Publish Terrarich Release"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Check code compilation
+        run: |
+          cargo check -p horizon-core -p horizon-items
+
+      - name: Generate release notes and update changelog
+        run: |
+          python tools/terrarich_changelog.py --version "${{ inputs.version }}" --notes
+          python tools/terrarich_changelog.py --bump "${{ inputs.version }}"
+
+      - name: Commit changelog and create tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "Terrarich"
+          git config user.email "Terrarich@users.noreply.github.com"
+          git add CHANGELOG.md
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(release): Terrarich release ${{ inputs.version }}"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+          git tag -a "${{ inputs.version }}" -m "Release ${{ inputs.version }} by Terrarich"
+          git push origin "${{ inputs.version }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version }}
+          name: ${{ inputs.title != '' && inputs.title || format('Horizon {0} (Fork by Terrarich)', inputs.version) }}
+          body_path: RELEASE_NOTES_${{ inputs.version }}.md
+          draft: ${{ inputs.draft }}
+          prerelease: ${{ inputs.prerelease }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

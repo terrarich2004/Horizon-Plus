@@ -1,0 +1,8 @@
+#!/bin/sh
+for py in python3 python py; do
+    if "$py" -c "import sys; sys.exit(sys.version_info < (3,))" >/dev/null 2>&1; then
+        exec "$py" tools/check_commit_msg.py "$1"
+    fi
+done
+echo "commit-msg: no working Python 3 found" >&2
+exit 1

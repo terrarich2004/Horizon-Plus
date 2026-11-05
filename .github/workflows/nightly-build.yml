@@ -32,9 +32,11 @@ run-name: nightly build${{ inputs.request && format(' (request {0})', inputs.req
 #   gh workflow run "nightly build"                     # now (skips when the pick is the same commit as last night's)
 #   gh workflow run "nightly build" -f force=true       # build and publish even if unchanged
 #   gh workflow run "nightly build" -f dry_run=true     # build and sign with a throwaway key, publish nothing
+# In Terrarich Fork: Automatic nightly build schedule is disabled.
+# Nightlies can only be built manually when requested.
 on:
-  schedule:
-    - cron: '17 20 * * *'  # 20:17 UTC: after the day's waves, before the 03:07 Paris parity audit takes the Mac mini
+  # schedule:
+  #   - cron: '17 20 * * *'
   workflow_dispatch:
     inputs:
       force:
