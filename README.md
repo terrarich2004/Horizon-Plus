@@ -27,7 +27,8 @@
 > 🌟 **Форк проекта Horizon от Terrarich**  
 > 📜 **Локальные правила разработки и публикации:** [RULES.md](RULES.md)  
 > 📋 **Журнал изменений:** [CHANGELOG.md](CHANGELOG.md)  
-> 🚀 **Инструменты релизов:** tools/terrarich_release.py / tools/terrarich_release.ps1
+> 🚀 **Инструменты релизов:** tools/terrarich_release.py / tools/terrarich_release.ps1  
+> ⚡ **Шпаргалка всех команд:** [COMMANDS.md](COMMANDS.md)
 
 
 Minecraft: Java Edition 26.3, rewritten in Rust. Same worlds, same rules, same terrain, checked against the Java game by more than 300 differential harnesses. Free, open source and unofficial.
